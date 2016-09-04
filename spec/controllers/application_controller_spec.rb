@@ -324,6 +324,18 @@ describe ApplicationController do
         expect(page.body).to include(tweet.content)
       end
 
+      it 'submits the edit form via a PATCH request' do
+        user = User.create(:username => "becky567", :email => "starz@aol.com", :password => "kittens")
+        tweet = Tweet.create(:content => "tweeting!", :user_id => user.id)
+        visit '/login'      
+
+        fill_in(:username, :with => "becky567")
+        fill_in(:password, :with => "kittens")
+        click_button 'submit'
+        visit '/tweets/1/edit'
+        expect(find("#hidden", :visible => false).value).to eq("PATCH")
+      end
+
       it 'does not let a user edit a tweet they did not create' do
         user1 = User.create(:username => "becky567", :email => "starz@aol.com", :password => "kittens")
         tweet1 = Tweet.create(:content => "tweeting!", :user_id => user1.id)
@@ -404,6 +416,19 @@ describe ApplicationController do
         click_button "Delete Tweet"
         expect(page.status_code).to eq(200)
         expect(Tweet.find_by(:content => "tweeting!")).to eq(nil)
+      end
+
+      it 'deletes a tweet via a DELETE request' do
+        user = User.create(:username => "becky567", :email => "starz@aol.com", :password => "kittens")
+        tweet = Tweet.create(:content => "tweeting!", :user_id => 1)
+        visit '/login'
+
+        fill_in(:username, :with => "becky567")
+        fill_in(:password, :with => "kittens")
+        click_button 'submit'
+        visit 'tweets/1'
+        expect(find("#hidden", :visible => false).value).to eq("DELETE")
+       
       end
 
       it 'does not let a user delete a tweet they did not create' do
